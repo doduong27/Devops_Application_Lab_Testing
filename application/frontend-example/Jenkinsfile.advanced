@@ -66,6 +66,9 @@ pipeline {
             steps {
                 // Di chuyển vào đúng thư mục
                 dir('application/frontend-example') {
+                    // Đảm bảo node_modules tồn tại trước khi chạy test
+                    sh 'npm install'
+                    // Chạy test thông qua npx để hệ thống tự tìm bin của vitest
                     sh 'npm test -- --run'
                 }
             }
