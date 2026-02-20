@@ -8,7 +8,7 @@ pipeline {
         APP_NAME = 'java-example'
         JAR_FILE = 'target/java-example-1.0.0.jar'
         DOCKER_IMAGE = "${APP_NAME}:${BUILD_NUMBER}"
-        DOCKER_REGISTRY = 'your-registry.com' // Update with your Docker registry
+        DOCKER_REGISTRY = 'docker.io/dvduong' // Update with your Docker registry
     }
     
     parameters {
@@ -62,7 +62,7 @@ pipeline {
         
         stage('Test') {
             when {
-                not { params.SKIP_TESTS }
+                expression { params.DEPLOY_ENV != 'none' }
             }
             agent {
                 docker {
