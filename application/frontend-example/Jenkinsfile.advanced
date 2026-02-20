@@ -47,7 +47,10 @@ pipeline {
                 }
             }
             steps {
-                sh 'npm ci'
+                // Di chuyển vào đúng thư mục chứa package.json
+                dir('application/frontend-example') {
+                    sh 'npm ci' // Hoặc npm ci nếu bạn đã push file lock
+                }
             }
         }
         
