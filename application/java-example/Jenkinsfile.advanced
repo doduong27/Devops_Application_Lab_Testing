@@ -141,7 +141,12 @@ pipeline {
     
     post {
         always {
-            cleanWs()
+            script {
+            // Chỉ chạy cleanWs nếu bước trước đó đã vào được một node
+            if (env.NODE_NAME != null) {
+                    cleanWs()
+                }
+            }   
         }
         success {
             echo "✅ Build #${BUILD_NUMBER} completed successfully!"
