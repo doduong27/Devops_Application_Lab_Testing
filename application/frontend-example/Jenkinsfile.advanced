@@ -64,7 +64,10 @@ pipeline {
                 }
             }
             steps {
-                sh 'npm test -- --run'
+                // Di chuyển vào đúng thư mục
+                dir('application/frontend-example') {
+                    sh 'npm test -- --run'
+                }
             }
             post {
                 always {
