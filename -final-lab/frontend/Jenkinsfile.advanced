@@ -71,15 +71,17 @@ pipeline {
 
         stage('🚀 Release (GitOps Update)') {
             steps {
-                dir('-final-lab/k8s') {
-                sh """
-                    sed -i 's|image: .*/frontend:.*|image: docker.io/dvduong/frontend:${env.BUILD_NUMBER}|g' deployment_frontend.yaml
-                    git add deployment_frontend.yaml
-                    git config user.email "dvduong2701@gmail.com"
-                    git config user.name "DuongDo"
-                    git commit -m "chore: update frontend image to ${env.BUILD_NUMBER}"
-                    git push origin main
-                """
+                withCredentials([usernamePassword(credentialsId: 'Token-Github', passwordVariable: 'GIT_PASS', usernameVariable: 'GIT_USER')]) {
+                    dir('-final-lab/k8s') {
+                        sh """
+                            sed -i 's|image: .*/frontend:.*|image: docker.io/dvduong/frontend:${env.BUILD_NUMBER}|g' deployment_frontend.yaml
+                            git add deployment_frontend.yaml
+                            git config user.email "dvduong2701@gmail.com"
+                            git config user.name "DuongDo"
+                            git commit -m "chore: update frontend image to ${env.BUILD_NUMBER}"
+                            git push https://${GIT_USER}:${GIT_PASS}@github.com/doduong27/Devops_Application_Lab_Testing.git HEAD:main
+                        """
+                    }
                 }
             }
         }
