@@ -46,7 +46,7 @@ pipeline {
             steps {
                 dir('-final-lab/backend') {
                     script {
-                        docker.withRegistry('https://index.docker.io/v1/', 'docker-credentials') {
+                        docker.withRegistry('', 'docker-credentials') {
                             // backend thường dùng Nginx để serve, Dockerfile nên nằm trong thư mục backend
                             def backendImg = docker.build("dvduong/backend:${env.BUILD_ID}")
                             backendImg.push()
