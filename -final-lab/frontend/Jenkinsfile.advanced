@@ -16,7 +16,6 @@ pipeline {
             steps {
                 dir('-final-lab/frontend') {
                     sh 'npm install'
-                    sh 'export NODE_OPTIONS=--openssl-legacy-provider && npm run build'
                 }
             }
         }
@@ -51,7 +50,7 @@ pipeline {
                     withDockerRegistry([credentialsId: 'docker-credentials', url: '']) {
                         dir('-final-lab/frontend') {
                         // Frontend thường dùng Nginx để serve, Dockerfile nên nằm trong thư mục frontend
-                        def frontendImg = docker.build("doduong27/frontend-app:${env.BUILD_ID}")
+                        def frontendImg = docker.build("docker.io/dvduong/frontend-app:${env.BUILD_ID}")
                         frontendImg.push()
                         frontendImg.push("latest")
                         }
