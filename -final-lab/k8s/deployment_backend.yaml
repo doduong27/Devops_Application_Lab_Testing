@@ -77,7 +77,7 @@ spec:
     spec:
       containers:
       - name: backend
-        image: docker.io/dvduong/backend:latest
+        image: docker.io/dvduong/backend:8
         env:
         - name: REDIS_HOST
           value: "redis"
