@@ -1,5 +1,11 @@
 pipeline {
-    agent any
+    agent 
+    agent {
+        docker {
+            image 'node:18-alpine' // Hoặc phiên bản node bạn đang dùng
+        }
+    }
+    
     environment {
         DOCKER_REGISTRY = "docker.io/dvduong"
         APP_NAME        = "final-lab-frontend"
