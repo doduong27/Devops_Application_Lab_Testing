@@ -37,6 +37,12 @@ pipeline {
         }
 
         stage('🏗 Build Production') {
+            agent {
+                docker { 
+                    image 'node:16-alpine' 
+                    // Quan trọng: Node 16 không cần openssl-legacy-provider
+                }
+            }
             steps {
                 dir('-final-lab/frontend') {
                     sh 'npm run build'
