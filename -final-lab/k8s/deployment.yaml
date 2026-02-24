@@ -1,0 +1,211 @@
+# 1. CẤU HÌNH NGINX (ConfigMap lấy từ nginx.conf)
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: nginx-config
+data:
+  nginx.conf: |
+    events { worker_connections 1024; }
+    http {
+        server {
+            listen 80;
+            location / {
+                proxy_pass http://frontend-server:5000/;
+            }
+            location /api/ {
+                proxy_set_header Host $host;
+                proxy_pass http://backend-server:8080/;
+            }
+        }
+    }
+
+---
+# 2. DATABASE (POSTGRES)
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: db
+spec:
+  selector:
+    matchLabels:
+      app: db
+  template:
+    metadata:
+      labels:
+        app: db
+    spec:
+      containers:
+      - name: postgres
+        image: postgres:15-alpine
+        env:
+        - name: POSTGRES_PASSWORD
+          value: "pass"
+        ports:
+        - containerPort: 5432
+        volumeMounts:
+        - name: pgdata
+          mountPath: /var/lib/postgresql/data
+      volumes:
+      - name: pgdata
+        emptyDir: {} # Trong thực tế nên dùng PersistentVolumeClaim
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: db
+spec:
+  selector:
+    app: db
+  ports:
+    - port: 5432
+
+---
+# 3. CACHE (REDIS)
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: redis
+spec:
+  selector:
+    matchLabels:
+      app: redis
+  template:
+    metadata:
+      labels:
+        app: redis
+    spec:
+      containers:
+      - name: redis
+        image: redis:alpine
+        ports:
+        - containerPort: 6379
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: redis
+spec:
+  selector:
+    app: redis
+  ports:
+    - port: 6379
+
+---
+# 4. BACKEND SERVER (Khớp biến môi trường từ Compose)
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: backend-server
+spec:
+  selector:
+    matchLabels:
+      app: backend-server
+  template:
+    metadata:
+      labels:
+        app: backend-server
+    spec:
+      containers:
+      - name: backend
+        image: docker.io/dvduong/backend:latest # Sẽ được Jenkins cập nhật
+        env:
+        - name: REDIS_HOST
+          value: "redis"
+        - name: POSTGRES_HOST
+          value: "db"
+        - name: POSTGRES_USER
+          value: "postgres"
+        - name: POSTGRES_PASSWORD
+          value: "pass"
+        - name: POSTGRES_DB
+          value: "postgres"
+        ports:
+        - containerPort: 8080
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: backend-server
+spec:
+  selector:
+    app: backend-server
+  ports:
+    - port: 8080
+
+---
+# 5. FRONTEND SERVER
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: frontend-server
+spec:
+  selector:
+    matchLabels:
+      app: frontend-server
+  template:
+    metadata:
+      labels:
+        app: frontend-server
+    spec:
+      containers:
+      - name: frontend
+        image: docker.io/dvduong/frontend:latest # Sẽ được Jenkins cập nhật
+        ports:
+        - containerPort: 5000
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: frontend-server
+spec:
+  selector:
+    app: frontend-server
+  ports:
+    - port: 5000
+
+---
+# 6. NGINX REVERSE PROXY (Cổng vào chính)
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx
+spec:
+  selector:
+    matchLabels:
+      app: nginx
+  template:
+    metadata:
+      labels:
+        app: nginx
+    spec:
+      containers:
+      - name: nginx
+        image: nginx:1.25-alpine
+        ports:
+        - containerPort: 80
+        volumeMounts:
+        - name: config
+          mountPath: /etc/nginx/nginx.conf
+          subPath: nginx.conf
+          readOnly: true
+      volumes:
+      - name: config
+        configMap:
+          name: nginx-config
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: nginx-external
+spec:
+  type: LoadBalancer # Expose port 5000 ra ngoài như Compose
+  selector:
+    app: nginx
+  ports:
+    - protocol: TCP
+      port: 5000
+      targetPort: 80

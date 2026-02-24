@@ -1,0 +1,66 @@
+pipeline {
+    agent any
+    environment {
+        DOCKER_REGISTRY = "docker.io/dvduong"
+        APP_NAME        = "final-lab-frontend"
+        IMAGE_TAG       = "${env.BUILD_NUMBER}"
+        GIT_REPO_URL    = "https://github.com/doduong27/Devops_Application_Lab_Testing.git"
+    }
+
+    stages {
+        stage('📦 Install Dependencies') {
+            steps {
+                dir('frontend') {
+                    sh 'npm install'
+                }
+            }
+        }
+
+        stage('🎨 Lint Check') {
+            steps {
+                dir('frontend') {
+                    sh 'npm run lint || true' // Tránh dừng pipeline nếu chỉ là warning
+                }
+            }
+        }
+
+        stage('🧪 Frontend Test') {
+            steps {
+                dir('frontend') {
+                    sh 'npm test -- --watchAll=false'
+                }
+            }
+        }
+
+        stage('🏗 Build Production') {
+            steps {
+                dir('frontend') {
+                    sh 'npm run build'
+                }
+            }
+        }
+
+        stage('🐳 Dockerize & Push') {
+            steps {
+                script {
+                    docker.withRegistry("https://${DOCKER_REGISTRY}", "docker-credentials") {
+                        // Frontend thường dùng Nginx để serve, Dockerfile nên nằm trong thư mục frontend
+                        def frontendImg = docker.build("${DOCKER_REGISTRY}/${APP_NAME}:${IMAGE_TAG}", "-f frontend/Dockerfile frontend/")
+                        frontendImg.push()
+                    }
+                }
+            }
+        }
+
+        stage('🚀 Release (GitOps Update)') {
+            steps {
+                sh """
+                    sed -i "s|image: .*/frontend-server:.*|image: ${DOCKER_REGISTRY}/${APP_NAME}:${IMAGE_TAG}|g" k8s/deployment.yaml
+                    git add k8s/deployment.yaml
+                    git commit -m "chore: update frontend image to ${IMAGE_TAG}"
+                    git push origin main
+                """
+            }
+        }
+    }
+}

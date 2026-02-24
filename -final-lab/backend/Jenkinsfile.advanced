@@ -1,0 +1,60 @@
+pipeline {
+    agent any
+    environment {
+        DOCKER_REGISTRY = "docker.io/dvduong"
+        APP_NAME        = "final-lab-backend"
+        IMAGE_TAG       = "${env.BUILD_NUMBER}"
+        GIT_REPO_URL    = "https://github.com/doduong27/Devops_Application_Lab_Testing.git"
+    }
+
+    stages {
+        stage('🔍 Backend Lint') {
+            steps {
+                dir('backend') {
+                    echo 'Running Go Vet...'
+                    sh 'go vet ./...'
+                }
+            }
+        }
+
+        stage('🧪 Backend Unit Test') {
+            steps {
+                dir('backend') {
+                    echo 'Running Go Tests...'
+                    sh 'go test -v ./...'
+                }
+            }
+        }
+
+        stage('📦 Build Binary') {
+            steps {
+                dir('backend') {
+                    sh 'go build -o main app.go'
+                }
+            }
+        }
+
+        stage('🐳 Dockerize & Push') {
+            steps {
+                script {
+                    docker.withRegistry("https://${DOCKER_REGISTRY}", "docker-credentials") {
+                        def backendImg = docker.build("${DOCKER_REGISTRY}/${APP_NAME}:${IMAGE_TAG}", "-f backend/Dockerfile backend/")
+                        backendImg.push()
+                    }
+                }
+            }
+        }
+
+        stage('🚀 Release (GitOps Update)') {
+            steps {
+                sh """
+                    # Cập nhật chính xác địa chỉ registry và tag mới vào file YAML
+                    sed -i "s|image: .*/backend-server:.*|image: ${DOCKER_REGISTRY}/${APP_NAME}:${IMAGE_TAG}|g" k8s/deployment.yaml
+                    git add k8s/deployment.yaml
+                    git commit -m "chore: update backend image to ${IMAGE_TAG}"
+                    git push origin main
+                """
+            }
+        }
+    }
+}
