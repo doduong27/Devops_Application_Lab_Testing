@@ -77,7 +77,7 @@ spec:
     spec:
       containers:
       - name: backend
-        image: docker.io/dvduong/backend:9
+        image: docker.io/dvduong/backend:10
         env:
         - name: REDIS_HOST
           value: "redis"
