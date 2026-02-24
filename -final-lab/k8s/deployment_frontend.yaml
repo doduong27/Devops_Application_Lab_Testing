@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
       - name: frontend
-        image: docker.io/dvduong/frontend:latest
+        image: docker.io/dvduong/frontend:3
         ports:
         - containerPort: 5000
 ---
