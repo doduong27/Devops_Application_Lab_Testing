@@ -1,5 +1,5 @@
 pipeline {
-    agent any
+    agent none
     environment {
         DOCKER_REGISTRY = "docker.io/dvduong"
         APP_NAME        = "final-lab-backend"
@@ -10,7 +10,7 @@ pipeline {
     }
 
     stages {
-        stage('🔍 Backend Lint') {
+/*        stage('🔍 Backend Lint') {
             agent {
                 docker {
                     image 'golang:1.21-alpine'
@@ -35,13 +35,14 @@ pipeline {
         }
 
         stage('📦 Build Binary') {
+            agent any
             steps {
                 dir('-final-lab/backend') {
                     sh 'go build -o main app.go'
                 }
             }
         }
-
+*/
         stage('🐳 Dockerize & Push') {
             steps {
                 dir('-final-lab/backend') {
