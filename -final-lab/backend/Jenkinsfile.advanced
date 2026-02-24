@@ -49,8 +49,8 @@ pipeline {
             steps {
                 sh """
                     # Cập nhật chính xác địa chỉ registry và tag mới vào file YAML
-                    sed -i "s|image: .*/backend-server:.*|image: ${DOCKER_REGISTRY}/${APP_NAME}:${IMAGE_TAG}|g" k8s/deployment.yaml
-                    git add k8s/deployment.yaml
+                    sh "sed -i 's|image: .*/backend:.*|image: docker.io/dvduong/backend:${env.BUILD_NUMBER}|g' k8s/deployment_backend.yaml"
+                    git add k8s/deployment_backend.yaml
                     git commit -m "chore: update backend image to ${IMAGE_TAG}"
                     git push origin main
                 """

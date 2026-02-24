@@ -60,7 +60,7 @@ pipeline {
                     withDockerRegistry([credentialsId: 'docker-credentials', url: '']) {
                         dir('-final-lab/frontend') {
                         // Frontend thường dùng Nginx để serve, Dockerfile nên nằm trong thư mục frontend
-                        def frontendImg = docker.build("dvduong/frontend-app:${env.BUILD_ID}")
+                        def frontendImg = docker.build("dvduong/frontend:${env.BUILD_ID}")
                         frontendImg.push()
                         frontendImg.push("latest")
                         }
@@ -71,12 +71,14 @@ pipeline {
 
         stage('🚀 Release (GitOps Update)') {
             steps {
+                dir('-final-lab/k8s') {
                 sh """
-                    sed -i "s|image: .*/frontend-server:.*|image: ${DOCKER_REGISTRY}/${APP_NAME}:${IMAGE_TAG}|g" k8s/deployment.yaml
-                    git add k8s/deployment.yaml
+                    sh "sed -i 's|image: .*/frontend:.*|image: docker.io/dvduong/frontend:${env.BUILD_NUMBER}|g' k8s/deployment_frontend.yaml"
+                    git add k8s/deployment_frontend.yaml
                     git commit -m "chore: update frontend image to ${IMAGE_TAG}"
                     git push origin main
                 """
+                }
             }
         }
     }
