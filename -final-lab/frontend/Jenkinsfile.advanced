@@ -48,10 +48,12 @@ pipeline {
         stage('🐳 Dockerize & Push') {
             steps {
                 script {
-                    docker.withRegistry("https://${DOCKER_REGISTRY}", "docker-credentials") {
+                    withDockerRegistry([credentialsId: 'docker-credentials', url: '']) {
+                        dir('-final-lab/frontend') {
                         // Frontend thường dùng Nginx để serve, Dockerfile nên nằm trong thư mục frontend
                         def frontendImg = docker.build("${DOCKER_REGISTRY}/${APP_NAME}:${IMAGE_TAG}", "-f frontend/Dockerfile frontend/")
                         frontendImg.push()
+                        }
                     }
                 }
             }
