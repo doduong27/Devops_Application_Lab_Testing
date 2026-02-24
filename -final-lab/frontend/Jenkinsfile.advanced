@@ -15,7 +15,7 @@ pipeline {
     stages {
         stage('📦 Install Dependencies') {
             steps {
-                dir('frontend') {
+                dir('-final-lab/frontend') {
                     sh 'npm install'
                 }
             }
@@ -23,7 +23,7 @@ pipeline {
 
         stage('🎨 Lint Check') {
             steps {
-                dir('frontend') {
+                dir('-final-lab/frontend') {
                     sh 'npm run lint || true' // Tránh dừng pipeline nếu chỉ là warning
                 }
             }
@@ -31,7 +31,7 @@ pipeline {
 
         stage('🧪 Frontend Test') {
             steps {
-                dir('frontend') {
+                dir('-final-lab/frontend') {
                     sh 'npm test -- --watchAll=false'
                 }
             }
@@ -39,7 +39,7 @@ pipeline {
 
         stage('🏗 Build Production') {
             steps {
-                dir('frontend') {
+                dir('-final-lab/frontend') {
                     sh 'npm run build'
                 }
             }

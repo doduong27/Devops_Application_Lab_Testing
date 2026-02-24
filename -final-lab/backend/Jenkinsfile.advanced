@@ -10,7 +10,7 @@ pipeline {
     stages {
         stage('🔍 Backend Lint') {
             steps {
-                dir('backend') {
+                dir('-final-lab/backend') {
                     echo 'Running Go Vet...'
                     sh 'go vet ./...'
                 }
@@ -19,7 +19,7 @@ pipeline {
 
         stage('🧪 Backend Unit Test') {
             steps {
-                dir('backend') {
+                dir('-final-lab/backend') {
                     echo 'Running Go Tests...'
                     sh 'go test -v ./...'
                 }
@@ -28,7 +28,7 @@ pipeline {
 
         stage('📦 Build Binary') {
             steps {
-                dir('backend') {
+                dir('-final-lab/backend') {
                     sh 'go build -o main app.go'
                 }
             }
