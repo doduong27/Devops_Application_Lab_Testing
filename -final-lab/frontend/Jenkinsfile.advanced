@@ -73,7 +73,7 @@ pipeline {
             steps {
                 dir('-final-lab/k8s') {
                 sh """
-                    sh "sed -i 's|image: .*/frontend:.*|image: docker.io/dvduong/frontend:${env.BUILD_NUMBER}|g' deployment_frontend.yaml"
+                    sed -i 's|image: .*/frontend:.*|image: docker.io/dvduong/frontend:${env.BUILD_NUMBER}|g' deployment_frontend.yaml"
                     git add deployment_frontend.yaml
                     git commit -m "chore: update frontend image to ${IMAGE_TAG}"
                     git push origin main
