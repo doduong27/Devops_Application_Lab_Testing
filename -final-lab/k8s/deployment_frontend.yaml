@@ -16,7 +16,7 @@ spec:
       - name: frontend
         image: docker.io/dvduong/frontend:4
         ports:
-        - containerPort: 5000
+        - containerPort: 80
 ---
 apiVersion: v1
 kind: Service
@@ -27,3 +27,4 @@ spec:
     app: frontend-server
   ports:
     - port: 5000
+      targetPort: 80
