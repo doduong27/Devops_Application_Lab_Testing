@@ -65,15 +65,15 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: backend-server
+  name: backend_server
 spec:
   selector:
     matchLabels:
-      app: backend-server
+      app: backend_server
   template:
     metadata:
       labels:
-        app: backend-server
+        app: backend_server
     spec:
       containers:
       - name: backend
@@ -95,9 +95,9 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: backend-server
+  name: backend_server
 spec:
   selector:
-    app: backend-server
+    app: backend_server
   ports:
     - port: 8080
