@@ -2,15 +2,15 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: frontend_server
+  name: frontend-server
 spec:
   selector:
     matchLabels:
-      app: frontend_server
+      app: frontend-server
   template:
     metadata:
       labels:
-        app: frontend_server
+        app: frontend-server
     spec:
       containers:
       - name: frontend
@@ -21,9 +21,9 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: frontend_server
+  name: frontend-server
 spec:
   selector:
-    app: frontend_server
+    app: frontend-server
   ports:
     - port: 5000
