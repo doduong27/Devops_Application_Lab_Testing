@@ -1,0 +1,37 @@
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: argocd-metrics-monitor
+  namespace: monitoring
+  labels:
+    release: monitoring # Label này phải trùng với tên lúc bạn cài Prometheus stack
+spec:
+  selector:
+    matchLabels:
+      # Khớp với Service 'argocd-metrics' trong hình bạn chụp
+      app.kubernetes.io/name: argocd-metrics 
+  namespaceSelector:
+    matchNames:
+      - argocd
+  endpoints:
+  - port: metrics # Port 8082 trong hình
+    interval: 30s
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: argocd-server-metrics-monitor
+  namespace: monitoring
+  labels:
+    release: monitoring
+spec:
+  selector:
+    matchLabels:
+      # Khớp với Service 'argocd-server-metrics' trong hình bạn chụp
+      app.kubernetes.io/name: argocd-server-metrics
+  namespaceSelector:
+    matchNames:
+      - argocd
+  endpoints:
+  - port: metrics # Port 8083 trong hình
+    interval: 30s
