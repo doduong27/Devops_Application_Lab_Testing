@@ -42,6 +42,7 @@ pipeline {
             }
         }
         stage('🐳 Dockerize & Push') {
+            agent any
             steps {
                 dir('-final-lab/backend') {
                     script {
