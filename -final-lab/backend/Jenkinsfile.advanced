@@ -1,5 +1,11 @@
 pipeline {
     agent any
+    tools {
+        // This name MUST match what is configured in 
+        // Manage Jenkins -> Tools -> Go installations
+        go 'go-default' 
+    }
+    
     environment {
         DOCKER_REGISTRY = "docker.io/dvduong"
         APP_NAME        = "final-lab-backend"
