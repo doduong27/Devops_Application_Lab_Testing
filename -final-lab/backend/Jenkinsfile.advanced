@@ -1,11 +1,11 @@
 pipeline {
-    agent any
-    tools {
-        // This name MUST match what is configured in 
-        // Manage Jenkins -> Tools -> Go installations
-        go 'go-default' 
+    agent {
+        docker {
+            image 'golang:1.21-alpine'
+            args '-u root'
+        }
     }
-    
+
     environment {
         DOCKER_REGISTRY = "docker.io/dvduong"
         APP_NAME        = "final-lab-backend"
@@ -17,12 +17,6 @@ pipeline {
 
     stages {
         stage('🔍 Backend Lint') {
-            agent {
-                docker {
-                    image 'golang:1.21-alpine'
-                    args '-u root'
-                }
-            }
             steps {
                 dir('-final-lab/backend') {
                     echo 'Running Go Vet...'
@@ -32,12 +26,6 @@ pipeline {
         }
 
         stage('🧪 Backend Unit Test') {
-            agent {
-                docker {
-                    image 'golang:1.21-alpine'
-                    args '-u root'
-                }
-            }
             steps {
                 dir('-final-lab/backend') {
                     echo 'Running Go Tests...'
@@ -47,7 +35,6 @@ pipeline {
         }
 
         stage('📦 Build Binary') {
-            agent any
             steps {
                 dir('-final-lab/backend') {
                     sh 'go build -o main app.go'
