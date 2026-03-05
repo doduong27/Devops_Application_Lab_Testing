@@ -1,10 +1,6 @@
 pipeline {
-    agent {
-        docker {
-            image 'golang:1.21-alpine'
-            args '-u root'
-        }
-    }
+    agent any
+    
 
     environment {
         DOCKER_REGISTRY = "docker.io/dvduong"
@@ -17,6 +13,12 @@ pipeline {
 
     stages {
         stage('🔍 Backend Lint') {
+            agent {
+                docker {
+                    image 'golang:1.21-alpine'
+                    args '-u root'
+                }
+            }
             steps {
                 dir('-final-lab/backend') {
                     echo 'Running Go Vet...'
@@ -26,6 +28,12 @@ pipeline {
         }
 
         stage('🧪 Backend Unit Test') {
+            agent {
+                docker {
+                    image 'golang:1.21-alpine'
+                    args '-u root'
+                }
+            }
             steps {
                 dir('-final-lab/backend') {
                     echo 'Running Go Tests...'
@@ -35,6 +43,12 @@ pipeline {
         }
 
         stage('📦 Build Binary') {
+            agent {
+                docker {
+                    image 'golang:1.21-alpine'
+                    args '-u root'
+                }
+            }
             steps {
                 dir('-final-lab/backend') {
                     sh 'go build -o main app.go'
@@ -42,7 +56,6 @@ pipeline {
             }
         }
         stage('🐳 Dockerize & Push') {
-            agent any
             steps {
                 dir('-final-lab/backend') {
                     script {
