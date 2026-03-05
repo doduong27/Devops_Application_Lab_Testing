@@ -1,7 +1,5 @@
 pipeline {
-    agent any
-    
-
+    agent any   
     environment {
         DOCKER_REGISTRY = "docker.io/dvduong"
         APP_NAME        = "final-lab-backend"
@@ -56,6 +54,7 @@ pipeline {
             }
         }
         stage('🐳 Dockerize & Push') {
+            agent any
             steps {
                 dir('-final-lab/backend') {
                     script {
@@ -71,6 +70,7 @@ pipeline {
         }
 
         stage('🚀 Release (GitOps Update)') {
+            agent any
             steps {
                 withCredentials([usernamePassword(credentialsId: 'Token-Github', passwordVariable: 'GIT_PASS', usernameVariable: 'GIT_USER')]) {
                     dir('-final-lab/k8s') {
